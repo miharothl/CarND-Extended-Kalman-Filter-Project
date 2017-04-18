@@ -88,6 +88,14 @@ int main(int argc, char* argv[]) {
       float y;
       iss >> x;
       iss >> y;
+
+      // edge case, can't compute jacobian
+      if (x == 0 and y ==0)
+      {
+       x = 0.01;
+       y = 0.01;
+      }
+
       meas_package.raw_measurements_ << x, y;
       iss >> timestamp;
       meas_package.timestamp_ = timestamp;
@@ -104,24 +112,49 @@ int main(int argc, char* argv[]) {
       iss >> ro;
       iss >> phi;
       iss >> ro_dot;
+
+      // edge case, can't compute jacobian
+      if (ro == 0 and phi ==0)
+      {
+        ro = 0.01;
+        phi = 0.01;
+      }
+
       meas_package.raw_measurements_ << ro, phi, ro_dot;
       iss >> timestamp;
       meas_package.timestamp_ = timestamp;
       measurement_pack_list.push_back(meas_package);
     }
 
-    // read ground truth data to compare later
-    float x_gt;
-    float y_gt;
-    float vx_gt;
-    float vy_gt;
-    iss >> x_gt;
-    iss >> y_gt;
-    iss >> vx_gt;
-    iss >> vy_gt;
-    gt_package.gt_values_ = VectorXd(4);
-    gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
-    gt_pack_list.push_back(gt_package);
+    if (sensor_type.compare("L") == 0) {
+      // LASER MEASUREMENT
+      // read ground truth data to compare later
+      float x_gt;
+      float y_gt;
+      float vx_gt;
+      float vy_gt;
+      iss >> x_gt;
+      iss >> y_gt;
+      iss >> vx_gt;
+      iss >> vy_gt;
+      gt_package.gt_values_ = VectorXd(4);
+      gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
+      gt_pack_list.push_back(gt_package);
+    } else if (sensor_type.compare("R") == 0) {
+      // RADAR MEASUREMENT
+      // read ground truth data to compare later
+      float x_gt;
+      float y_gt;
+      float vx_gt;
+      float vy_gt;
+      iss >> x_gt;
+      iss >> y_gt;
+      iss >> vx_gt;
+      iss >> vy_gt;
+      gt_package.gt_values_ = VectorXd(4);
+      gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
+      gt_pack_list.push_back(gt_package);
+    }
   }
 
   // Create a Fusion EKF instance
